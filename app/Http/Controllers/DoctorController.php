@@ -74,4 +74,10 @@ class DoctorController extends Controller
         $this->doctor_service->delete($id);
         return redirect()->route('admin.doctors.index')->with('success', 'Doctor deleted');
     }
+
+    public function appointmentdetail(Request $Request)
+    {
+        $appointment = Appointment::with('doctor')->get();
+        return view('admin.doctors.appointmentdetail', compact('appointment'));
+    }
 }

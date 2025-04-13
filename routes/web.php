@@ -18,22 +18,14 @@ use App\Http\Controllers\AppointmentController;
 */
 
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
-
-
-
-
-
-
 Route::get('/admin', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-//Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Auth::routes(['register' => false]);
 
 Route::prefix('admin')->middleware('auth')->name('admin.')->group(function () {
     Route::resource('doctors', DoctorController::class);
+    Route::get('/appointmentdetail', [DoctorController::class, 'appointmentdetail'])->name('doctors.appointmentdetail');
+
 });
 
     Route::get('/', [AppointmentController::class, 'index'])->name('appointments.index');
