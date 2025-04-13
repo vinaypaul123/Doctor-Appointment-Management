@@ -9,9 +9,9 @@ Dashboard: In this section, the admin can briefly view the total number of new a
 Add Doctors: In this section, Admin can add Doctors and time slots and mark the leaves. 
 Appointment:User can book appointment against the doctor
 
-##Getting Started
+## Getting Started
 
-#Installation
+# Installation
 
 1) Download and Install XAMPP: version 8.2.12
 2) Install Composer Dependencies: composer install
@@ -23,7 +23,7 @@ Appointment:User can book appointment against the doctor
    email = admin@gmail.com
    password = 12345678
 
-##Requirements
+## Requirements
 1) PHP 8.2.12
 2) Laravel 10.48.29
 3) MySQL
