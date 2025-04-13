@@ -7,6 +7,9 @@ The Doctor Appointment Management System is a web application that allows patien
 ### Dashboard: 
 In this section, the admin can briefly view the total number of new appointment and total  appointments.
 
+### Appointments details: 
+In this section, the admin can view the all booked patients and details
+
 ### Add Doctors:
 In this section, Admin can add Doctors and time slots and mark the leaves. 
 
