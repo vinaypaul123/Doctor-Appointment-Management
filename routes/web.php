@@ -25,24 +25,17 @@ use App\Http\Controllers\AppointmentController;
 
 
 
-Auth::routes();
+
 
 Route::get('/admin', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+//Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
+Auth::routes(['register' => false]);
 
-// Route::get('/admin/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
-// Route::post('/admin/login', [AdminAuthController::class, 'login']);
-// Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
+Route::prefix('admin')->middleware('auth')->name('admin.')->group(function () {
+    Route::resource('doctors', DoctorController::class);
+});
 
-
-Route::prefix('admin')
-    ->name('admin.')
-    ->group(function () {
-        Route::resource('doctors', DoctorController::class);
-    });
-
-    Route::get('/', [AppointmentController::class, 'index'])->name('doctors.index');
-
+    Route::get('/', [AppointmentController::class, 'index'])->name('appointments.index');
     Route::get('appointments/{doctor}', [AppointmentController::class, 'create'])->name('appointments.create');
     Route::post('appointments/{doctor}', [AppointmentController::class, 'store'])->name('appointments.store');

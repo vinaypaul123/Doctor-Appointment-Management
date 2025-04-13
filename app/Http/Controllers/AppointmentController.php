@@ -12,7 +12,7 @@ class AppointmentController extends Controller
 
     public function index()
     {
-        $doctors = Doctor::all(); // Or with('availabilities') if you want availability later
+        $doctors = Doctor::all();
         return view('appointments.index', compact('doctors'));
 
     }

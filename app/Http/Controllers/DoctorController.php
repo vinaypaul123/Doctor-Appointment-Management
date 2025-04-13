@@ -1,20 +1,32 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\DataTransferObjects\DoctorDto;
+use App\Filters\DescOrderFilter;
+use App\Http\Requests\Doctor\StoreRequest;
+use App\Http\Requests\Doctor\UpdateRequest;
 use App\Models\Doctor;
 use App\Models\Appointment;
 use App\Models\Availability;
 use App\Models\DoctorAvailability;
 use App\Models\DoctorTimeSlot;
-
+use App\Services\AdminService;
 use Illuminate\Http\Request;
+use Ramsey\Uuid\Type\Integer;
 
 class DoctorController extends Controller
 {
+    public function __construct(protected AdminService $doctor_service)
+    {
+
+    }
+
     public function index() {
-        $doctors = Doctor::with('availabilities.timeSlots')
-                         ->withCount('appointments') // This is key
-                         ->get();
+        $doctors=$this->doctor_service->list([DescOrderFilter::class])
+            ->withCount('appointments')
+            ->with('availabilities.timeSlots')
+            ->get();
 
         $doctorCount = Doctor::count();
         $appointmentCount = Appointment::count();
@@ -27,43 +39,16 @@ class DoctorController extends Controller
         return view('admin.doctors.create', compact('days'));
     }
 
-    public function store(Request $request)
+    public function store(StoreRequest $request)
     {
-        $request->validate([
-            'name' => 'required',
-            'specialization' => 'required',
-            'qualification' => 'nullable',
-            'description' => 'nullable',
-            'availability' => 'required|array',
-        ]);
-
-        $doctor = Doctor::create($request->only('name', 'specialization', 'qualification', 'description'));
-
+        $dto=DoctorDto::build($request->validated());
+        $doctor = $this->doctor_service->create($dto);
         foreach ($request->availability as $day => $data) {
-            // Determine status: default to 'leave' if not explicitly set to 'working'
-            $status = isset($data['status']) && $data['status'] === 'working' ? 'working' : 'leave';
-            // Create availability for the day
-            $availability = $doctor->availabilities()->create([
-                'day' => $day,
-                'status' => $status,
-            ]);
-
-            // If working, process time slots
-            if (isset($data['slots']) && is_array($data['slots'])) {
-                foreach ($data['slots'] as $slot) {
-                    if (!empty($slot['start']) && !empty($slot['end'])) {
-                        $availability->timeSlots()->create([
-                            'start_time' => $slot['start'],
-                            'end_time' => $slot['end'],
-                        ]);
-                    }
-                }
-            }
+            $this->doctor_service->createAvailabilitytest($doctor,$day,$data);
         }
 
         return redirect()->route('admin.doctors.index')->with('success', 'Doctor added');
     }
-
 
 
     public function edit(Doctor $doctor)
@@ -71,74 +56,22 @@ class DoctorController extends Controller
         return view('admin.doctors.edit', compact('doctor'));
     }
 
-    public function update(Request $request, Doctor $doctor)
+    public function update(UpdateRequest $request, int $id)
     {
-        // Validate the request data
-        $request->validate([
-            'name' => 'required',
-            'specialization' => 'required',
-            'qualification' => 'nullable',
-            'description' => 'nullable',
-            'availability' => 'required|array',
-        ]);
+        $dto=DoctorDto::build($request->validated());
 
-        // Update doctor details
-        $doctor->update($request->only('name', 'specialization', 'qualification', 'description'));
+        $doctor=$this->doctor_service->update($id,$dto);
 
         foreach ($request->availability as $day => $data) {
-            $status = isset($data['status']) && $data['status'] === 'working' ? 'working' : 'leave';
-
-            // Get availability for the day or create if not exists
-            $availability = $doctor->availabilities()->firstOrNew(['day' => $day]);
-
-            // Update the status
-            $availability->status = $status;
-            $availability->save();
-
-            if ( isset($data['slots']) && is_array($data['slots'])) {
-                $existingSlots = $availability->timeSlots->keyBy('id');
-
-                foreach ($data['slots'] as $index => $slot) {
-                    if (isset($slot['slot_id'])) {
-                        // Update existing slot
-                        $timeSlot = $existingSlots->get($slot['slot_id']);
-                        if ($timeSlot) {
-                            $timeSlot->update([
-                                'start_time' => $slot['start'],
-                                'end_time' => $slot['end'],
-                            ]);
-                            $existingSlots->forget($slot['slot_id']);
-                        }
-                    } else {
-                        // Create new slot
-                        if (!empty($slot['start']) && !empty($slot['end'])) {
-                            $availability->timeSlots()->create([
-                                'start_time' => $slot['start'],
-                                'end_time' => $slot['end'],
-                            ]);
-                        }
-                    }
-                }
-
-                // Delete removed slots
-                foreach ($existingSlots as $slot) {
-                    $slot->delete();
-                }
-            } else {
-                // Leave day — remove all existing slots
-                $availability->timeSlots()->delete();
-            }
+                $this->doctor_service->updateAvailability($doctor,$day,$data);
         }
 
         return redirect()->route('admin.doctors.index')->with('success', 'Doctor updated successfully');
     }
 
 
-
-
-
-    public function destroy(Doctor $doctor) {
-        $doctor->delete();
+    public function destroy(int $id) {
+        $this->doctor_service->delete($id);
         return redirect()->route('admin.doctors.index')->with('success', 'Doctor deleted');
     }
 }

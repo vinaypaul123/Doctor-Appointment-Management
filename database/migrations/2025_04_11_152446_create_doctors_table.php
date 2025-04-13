@@ -19,6 +19,7 @@ return new class extends Migration
         $table->text('qualification')->nullable();
         $table->text('description')->nullable();
         $table->timestamps();
+        $table->softDeletes();
     });
 
         // doctor_availabilities table
