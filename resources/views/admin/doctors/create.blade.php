@@ -19,12 +19,12 @@
 
         <div class="mb-3">
             <label>Qualification</label>
-            <textarea name="qualification" class="form-control">{{ old('qualification') }}</textarea>
+            <textarea name="qualification" class="form-control" required>{{ old('qualification') }}</textarea>
         </div>
 
         <div class="mb-3">
             <label>Description</label>
-            <textarea name="description" class="form-control">{{ old('description') }}</textarea>
+            <textarea name="description" class="form-control" required>{{ old('description') }}</textarea>
         </div>
 
         <hr>

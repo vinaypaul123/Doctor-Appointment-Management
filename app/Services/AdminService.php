@@ -15,12 +15,12 @@ class AdminService extends AdminRepository
 {
 public function createAvailability(Doctor $doctor,array $data)
 {
-return $doctor->availabilities()->create($data);
+    return $doctor->availabilities()->create($data);
 }
 
 public function createSlots($availability,$data)
 {
-  return  $availability->timeSlots()->create($data);
+    return  $availability->timeSlots()->create($data);
 }
 
 public function updateAvailability(Doctor $doctor,$day,$data)
@@ -67,7 +67,7 @@ public function updateAvailability(Doctor $doctor,$day,$data)
         // Leave day — remove all existing slots
         $availability->timeSlots()->delete();
     }
-return true;
+    return true;
 }
 
 public function createAvailabilitytest(Doctor $doctor,$day,$data)
@@ -81,7 +81,7 @@ public function createAvailabilitytest(Doctor $doctor,$day,$data)
             'status' => $status,
         ];
 
-$availability=$this->createAvailability($doctor,$data1);
+        $availability=$this->createAvailability($doctor,$data1);
 
         // If working, process time slots
         if (isset($data['slots']) && is_array($data['slots'])) {
@@ -91,7 +91,7 @@ $availability=$this->createAvailability($doctor,$data1);
                         'start_time' => $slot['start'],
                         'end_time' => $slot['end'],
                     ];
-$this->createSlots($availability,$data);
+                    $this->createSlots($availability,$data);
                 }
             }
         }

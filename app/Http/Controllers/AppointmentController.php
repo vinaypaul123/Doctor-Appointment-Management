@@ -23,7 +23,7 @@ class AppointmentController extends Controller
 
         // Fetch existing appointments for the selected doctor
         $appointments = Appointment::where('doctor_id', $doctor->id)
-                                   ->whereDate('appointment_date', '>=', now()->toDateString()) // Optional: Filter by future dates
+                                   ->whereDate('appointment_date', '>=', now()->toDateString()) // Filter by future dates
                                    ->get();
 
         return view('appointments.create', compact('doctor', 'availabilities', 'daysOfWeek', 'appointments'));

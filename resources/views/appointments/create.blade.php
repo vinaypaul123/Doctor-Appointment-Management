@@ -14,13 +14,14 @@
     <form method="POST" action="{{ route('appointments.store', $doctor) }}">
         @csrf
 
+        {{-- Flatpickr CSS --}}
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
         <div class="form-group">
             <label for="appointment_date">Select Date</label>
-            <input type="date" name="appointment_date" id="appointment_date" class="form-control" required
-                   min="{{ now()->toDateString() }}"
-                   max="{{ now()->addDays(30)->toDateString() }}">
+            <input type="text" name="appointment_date" id="appointment_date" class="form-control" required>
         </div>
+
         <div class="row">
             <div class="col-4">
                 <div id="time-slots-wrapper" class="mt-3" style="display:none;">
@@ -29,8 +30,6 @@
                 </div>
             </div>
         </div>
-
-
 
         <hr>
 
@@ -55,11 +54,36 @@
     </form>
 </div>
 
+{{-- Flatpickr JS --}}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
 <script>
     const availabilities = @json($availabilities);
     const appointments = @json($appointments);
 
-    // Function to convert 24h time to 12h AM/PM
+    // Get allowed dates with at least one slot
+    const today = new Date();
+    const allowedDates = [];
+
+    for (let i = 0; i <= 30; i++) {
+        const date = new Date();
+        date.setDate(today.getDate() + i);
+        const isoDate = date.toISOString().split('T')[0];
+        const day = date.toLocaleString('en-US', { weekday: 'long' });
+
+        if (availabilities[day] && availabilities[day].time_slots.length > 0) {
+            allowedDates.push(isoDate);
+        }
+    }
+
+    flatpickr("#appointment_date", {
+        dateFormat: "Y-m-d",
+        enable: allowedDates,
+        onChange: function(selectedDates, dateStr) {
+            document.getElementById('appointment_date').dispatchEvent(new Event('change'));
+        }
+    });
+
     function formatToAmPm(timeStr) {
         const [hours, minutes] = timeStr.split(':');
         const date = new Date();
