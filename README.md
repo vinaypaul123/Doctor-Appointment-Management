@@ -26,7 +26,7 @@ User can book appointment against the doctor
 4) Run seeder : php artisan db:seed
 5) For insert two dumy data, call seeder :  php artisan db:seed --class=DoctorSeeder
 6) Run the projecrt : php artisan serve 
-7) Admin Login : http://localhost:8000/admin
+7) Admin Login : http://localhost:8000/login
    email = admin@gmail.com
    password = 12345678
 
